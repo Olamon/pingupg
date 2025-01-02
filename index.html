@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='UTF-8'>
+  <title>Penguin Snowflake Game</title>
+  <style>
+    body {
+      background-color: #bae6e4; /* Game Boy Color background */
+      color: #0f380f;
+      font-family: 'Courier New', monospace;
+      font-size: large;
+    }
+    canvas {
+      border: 2px solid #0f380f;
+      font-size: medium;
+    }
+  </style>
+</head>
+<body>
+  <h1>Penguin Snowflake Game</h1>
+  <canvas id='gameCanvas' width='200' height='300'></canvas>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const penguin = new Image();
+    penguin.src = 'img/penguin.png';
+    ctx.imageSmoothingEnabled = false;
+    let penguinX = 100;
+    let penguinY = 260;
+    let snowflakes = [];
+    let score = 0;
+    function update() {
+      // Move snowflakes
+      for (let flake of snowflakes) {
+        flake.y += 1;
+        if (flake.y > 300) {
+          flake.y = -16;
+          flake.x = Math.random() * 200;
+        }
+        // Check collision with penguin
+        if (Math.abs(flake.x - penguinX) < 16 && Math.abs(flake.y - penguinY) < 16) {
+          score++;
+          flake.y = -16;
+          flake.x = Math.random() * 200;
+        }
+      }
+      // Add new snowflakes
+      if (Math.random() < 0.01) {
+        snowflakes.push({x: Math.random() * 200, y: -16});
+      }
+    }
+    function draw() {
+      ctx.fillStyle = '#0f88bc';
+      ctx.fillRect(0, 0, 200, 300);
+      // Draw penguin image
+      const scale = 2; // scale the penguin image
+      const penguinWidth = penguin.width * scale;
+      const penguinHeight = penguin.height * scale;
+      ctx.drawImage(penguin, penguinX - penguinWidth / 2, penguinY - penguinHeight / 2, penguinWidth, penguinHeight);
+      // Draw snowflakes as white dots
+      ctx.fillStyle = '#ffffff';
+      for (let flake of snowflakes) {
+        ctx.fillRect(flake.x - 2, flake.y - 2, 4, 4);
+      }
+      // Draw score
+      ctx.fillStyle = '#0f380f';
+      ctx.font = '16px Courier New';
+      ctx.fillText('Score: ' + score, 10, 20);
+    }
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+    document.addEventListener('keydown', (e) => {
+      const speed = 4;
+      if (e.key === 'ArrowLeft') penguinX -= speed;
+      if (e.key === 'ArrowRight') penguinX += speed;
+      if (e.key === 'ArrowUp') penguinY -= speed;
+      if (e.key === 'ArrowDown') penguinY += speed;
+      const penguinWidth = penguin.width * 2;
+      const penguinHeight = penguin.height * 2;
+      penguinX = Math.max(penguinWidth / 2, Math.min(penguinX, canvas.width - penguinWidth / 2));
+      penguinY = Math.max(penguinHeight / 2, Math.min(penguinY, canvas.height - penguinHeight / 2));
+    });
+    penguin.onload = () => {
+      requestAnimationFrame(loop);
+    };
+  </script>
+</body>
+</html>
